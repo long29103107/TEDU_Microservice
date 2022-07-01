@@ -7,31 +7,31 @@ services:
    orderdb:
       container_name: orderdb
       environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=123456
+         SA_PASSWORD: "Passw0rd!"
+         ACCEPT_EULA: "Y"
       restart: always
-      ports:
-         - "1435:1433"
       volumes:
          - sqlserver_data:/var/lib/sqlserver/data
+      ports:
+         - "1435:1433"
 
    #productdb: mysql
    productdb:
       container_name: productdb
       environment:
-         - MYSQL_ROOT_PASSWORD=123456
+         MYSQL_ROOT_PASSWORD: "Passw0rd!"
       restart: always
-      ports:
-         - "3306:3306"
       volumes:
          - mysql_data:/var/lib/mysql
+      ports:
+         - "3306:3306"
 
    #customerdb: postgresdb
    customerdb:
       container_name: customerdb
       environment:
       - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=123456
+      - POSTGRES_PASSWORD=admin1234
       - POSTGRES_DB=DiscountDb
       restart: always
       ports:
@@ -67,7 +67,7 @@ services:
       container_name: pgadmin
       environment:
       - PGADMIN_DEFAULT_EMAIL=admin@tedu_microservice.com
-      - PGADMIN_DEFAULT_PASSWORD=123456
+      - PGADMIN_DEFAULT_PASSWORD=admin1234
       restart: always
       ports:
          - "5050:80"
@@ -82,20 +82,20 @@ services:
          - "9000:9000"
       volumes:
          - /var/run/docker.sock:/var/run/docker.sock
-         - portainer_data:/database
+         - portainer_data:/data
 
    elasticsearch:
       container_name: elasticsearch
       environment:
          - xpack.monitoring.enabled=true
          - xpack.watcher.enabled=false
-         - "ES_JAVA_OPTS=Xms512m -Xmx512m"
+         - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
          - discovery.type=single-node
       ports:
          - "9200:9200"
       volumes:
          - elasticsearch_data:/usr/share/elasticsearch/data
-   
+    
    kibana:
       container_name: kibana
       environment:
