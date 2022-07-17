@@ -3,8 +3,12 @@ using Product.API.Extensions;
 using Product.API.Persistence;
 using Serilog;
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
+
 var builder = WebApplication.CreateBuilder(args);
-Log.Information("Start Product Api up");
+Log.Information($"Start {builder.Environment.ApplicationName} Api up");
 
 try
 {

@@ -1,22 +1,52 @@
-using Common.Logging;
+using System.Reflection;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using AutoMapper;
+using Contracts.Common.Interfaces;
+using Customer.API;
 using Customer.API.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
-using Customer.API.Persistence;
+using Infrastructure.Common;
+using Microsoft.EntityFrameworkCore;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
 var builder = WebApplication.CreateBuilder(args);
-Log.Information("Start Customer Api up");
-
+Log.Information($"Start {builder.Environment.ApplicationName} Api up");
 try
 {
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
-    
+    builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnectionString");
     builder.Services.AddDbContext<CustomerContext>(options => options.UseNpgsql(connectionString));
+    var config = new MapperConfiguration(cfg =>
+    {
+        cfg.AddProfile(new MappingProfile());
+    });
 
+    var mapper = config.CreateMapper();
+    builder.Services.AddSingleton(mapper);
+    // builder.Services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
+    builder.Services.AddScoped(typeof(IRepositoryQueryBase<,,>), typeof(RepositoryQueryBase<,,>));
+    
+    builder.Host.ConfigureContainer<ContainerBuilder>(builder =>
+    {
+        var dataAccess = Assembly.GetExecutingAssembly();
+        builder.RegisterAssemblyTypes(dataAccess)
+            .Where(t => t.Name.EndsWith("Repository"))
+            .AsImplementedInterfaces()
+            .InstancePerLifetimeScope();
+        builder.RegisterAssemblyTypes(dataAccess)
+            .Where(t => t.Name.EndsWith("Service"))
+            .AsImplementedInterfaces()
+            .InstancePerLifetimeScope();
+    });
     var app = builder.Build();
+
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
@@ -32,8 +62,8 @@ try
         endpoints.MapDefaultControllerRoute();
     });
     
-    app.SeedCustomer()
-        .Run();
+    app.SeedCustomer();
+    app.Run();
 }
 catch (Exception ex)
 {
