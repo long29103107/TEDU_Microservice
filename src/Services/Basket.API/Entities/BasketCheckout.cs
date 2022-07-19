@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.Entities;
+﻿namespace Basket.API.Entities;
 
 public class BasketCheckout
 {

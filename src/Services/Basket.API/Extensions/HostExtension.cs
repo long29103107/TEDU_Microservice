@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.Extensions;
+﻿namespace Basket.API.Extensions;
 
 public static class HostExtension
 {
