@@ -56,4 +56,5 @@ docker-compose -f docker-compose.yml -f docker-compose.override.yml up -d --remo
 - dotnet restore
 - dotnet build
 - Migrations commands:
-    dotnet ef migration add "SampleMigration"
+    dotnet ef migrations add "SampleMigration" -p {project dir} --startup-project {project dir} --output-dir Persistence/Migrations
+    CD into Ordering folder: dotnet ef migrations remove -p Ordering.Infrastructure --startup-project Ordering.API --output-dir Persistence/Migrations
